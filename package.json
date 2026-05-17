@@ -1,0 +1,26 @@
+{
+  "name": "claude-code-optimizer",
+  "version": "0.1.0",
+  "description": "Local Claude Code usage optimizer that suggests CLAUDE.md, skills, and command improvements.",
+  "type": "module",
+  "bin": {
+    "claude-opt": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.1.2",
+    "chalk": "^5.6.2",
+    "commander": "^12.1.0",
+    "diff": "^5.2.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^22.5.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}
