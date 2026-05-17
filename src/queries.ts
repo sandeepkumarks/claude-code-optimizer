@@ -40,7 +40,7 @@ export const SQL_INSERT_EVENT = `
 // ── Suggestions ───────────────────────────────────────────────────────────────
 
 export const SQL_SELECT_EXISTING_SUGGESTION = `
-  SELECT id, status FROM suggestions
+  SELECT id, status, content FROM suggestions
   WHERE repo_path = ? AND type = ? AND title = ?
   ORDER BY id DESC
   LIMIT 1
@@ -97,6 +97,13 @@ export const SQL_LIST_APPLIED_SUGGESTIONS = `
   SELECT id, title, applied_at as appliedAt, created_at as createdAt
   FROM suggestions
   WHERE repo_path = ? AND status = 'APPLIED'
+  ORDER BY COALESCE(applied_at, created_at) ASC
+`;
+
+export const SQL_LIST_APPLIED_CLAUDE_MD = `
+  SELECT id, type, title, content, reason, status, created_at as createdAt
+  FROM suggestions
+  WHERE repo_path = ? AND type = 'CLAUDE_MD' AND status = 'APPLIED'
   ORDER BY COALESCE(applied_at, created_at) ASC
 `;
 

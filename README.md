@@ -1,6 +1,6 @@
-# copt — Claude Code Optimizer
+# memex — Claude Code Optimizer
 
-A passive, local-first optimization layer for Claude Code. copt silently learns how Claude navigates your repo and incrementally improves `CLAUDE.md` — reducing unnecessary exploration and improving Claude's effectiveness over time.
+A passive, local-first optimization layer for Claude Code. memex silently learns how Claude navigates your repo and incrementally improves `CLAUDE.md` — reducing unnecessary exploration and improving Claude's effectiveness over time.
 
 No cloud infrastructure. No new workflows. No maintenance burden.
 
@@ -24,7 +24,7 @@ npm link
 From your target repo:
 
 ```bash
-claude-opt init
+memex init
 ```
 
 Installs Claude Code hooks into `.claude/settings.local.json`. If a settings file already exists, hooks are merged in without overwriting your existing config.
@@ -33,56 +33,56 @@ Data is stored locally at `.claude/optimizer/optimizer.sqlite`.
 
 ## Commands
 
-### `claude-opt analyze`
+### `memex analyze`
 
 Analyze captured sessions and generate CLAUDE.md suggestions.
 
 ```bash
-claude-opt analyze
+memex analyze
 ```
 
-Add `--auto` to silently apply safe optimizations without approval. Auto mode only writes to the `<!-- copt:start/end -->` boundary in CLAUDE.md — human-authored content is never touched.
+Add `--auto` to silently apply safe optimizations without approval. Auto mode only writes to the `<!-- memex:start/end -->` boundary in CLAUDE.md — human-authored content is never touched.
 
 ```bash
-claude-opt analyze --auto
+memex analyze --auto
 ```
 
-### `claude-opt suggestions`
+### `memex suggestions`
 
 List all open suggestions with proposed content and reasoning.
 
 ```bash
-claude-opt suggestions
+memex suggestions
 ```
 
-### `claude-opt apply <id>`
+### `memex apply <id>`
 
 Apply a suggestion — writes synthesized content to CLAUDE.md.
 
 ```bash
-claude-opt apply 3
+memex apply 3
 ```
 
-### `claude-opt reject <id>`
+### `memex reject <id>`
 
 Dismiss a suggestion. Rejected suggestions are not re-generated.
 
 ```bash
-claude-opt reject 3
+memex reject 3
 ```
 
-### `claude-opt audit`
+### `memex audit`
 
 Show whether applied optimizations actually reduced Claude's exploration overhead. Compares pre-edit read counts before and after each optimization was applied.
 
 ```bash
-claude-opt audit
+memex audit
 ```
 
 Example output:
 
 ```
-copt audit  ·  2026-05-16
+memex audit  ·  2026-05-16
 Sessions analyzed: 12  (last 30 days)
 Applied optimizations: 2
 
@@ -100,15 +100,15 @@ Overall efficiency (edits ÷ reads): 0.18 → 0.31  ↑ improving
 
 **Event capture** — A PostToolUse hook fires after every Read, Edit, Write, Grep, Glob, and Bash call. A Stop hook fires when each session ends. Events are stored in a local SQLite database.
 
-**Session synthesis** — At session end, copt extracts the navigation path (files read before the first edit) and edit targets. This becomes the raw material for synthesis.
+**Session synthesis** — At session end, memex extracts the navigation path (files read before the first edit) and edit targets. This becomes the raw material for synthesis.
 
 **Scoring** — Files are scored by: how early they appear in sessions, how often they correlate with edits, and recency. Low-confidence files are filtered out.
 
-**CLAUDE.md section** — The synthesized navigation hints are written inside `<!-- copt:start -->` / `<!-- copt:end -->` markers. This section is owned by copt and refreshed on each run. Everything outside the markers is yours.
+**CLAUDE.md section** — The synthesized navigation hints are written inside `<!-- memex:start -->` / `<!-- memex:end -->` markers. This section is owned by memex and refreshed on each run. Everything outside the markers is yours.
 
 **Impact tracking** — Each applied suggestion records a timestamp. The audit command splits your session history at that timestamp and compares exploration depth before vs after.
 
-## What copt does NOT do
+## What memex does NOT do
 
 - Generate slash commands or skills
 - Auto-remove human-authored CLAUDE.md content

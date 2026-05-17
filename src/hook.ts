@@ -48,6 +48,6 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error("[claude-opt hook error]", err);
+  console.error("[memex hook error]", err);
   process.exit(0);
 });

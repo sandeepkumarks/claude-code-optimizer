@@ -5,6 +5,7 @@ const INTERNAL_PATH_SEGMENTS = [
   /^\.claude[/\\]/,
   /[/\\]memory[/\\]/,
   /\bMEMORY\.md$/,
+  /\bCLAUDE\.md$/,
   /project_philosophy\.md$/,
   /feedback_suggestion_quality\.md$/,
   /[/\\]node_modules[/\\]/,

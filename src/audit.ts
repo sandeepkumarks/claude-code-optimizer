@@ -131,18 +131,18 @@ export function computeAudit(repoPath = process.cwd()): AuditReport {
 export function formatAuditReport(report: AuditReport): string {
   const lines: string[] = [];
 
-  lines.push(`copt audit  ·  ${report.date}`);
+  lines.push(`memex audit  ·  ${report.date}`);
   lines.push(`Sessions analyzed: ${report.totalSessions}  (last ${report.windowDays} days)`);
 
   if (report.totalSessions === 0) {
-    lines.push("\nNo sessions recorded yet. Run Claude Code with copt hooks installed.");
+    lines.push("\nNo sessions recorded yet. Run Claude Code with memex hooks installed.");
     return lines.join("\n");
   }
 
   lines.push(`Applied optimizations: ${report.impacts.length}`);
 
   if (report.impacts.length === 0) {
-    lines.push("\nNo optimizations applied yet. Run: claude-opt analyze");
+    lines.push("\nNo optimizations applied yet. Run: memex analyze");
     return lines.join("\n");
   }
 

@@ -177,15 +177,14 @@ function extractTaskPatterns(patterns: SessionPattern[], repoPath: string): Task
     .slice(0, SYNTH_MAX_TASK_PATTERNS);
 }
 
-function formatCoptSection(
+function formatMemexSection(
   entryPoints: FileScore[],
   taskPatterns: TaskPattern[],
   repoPath: string,
   date: string
 ): string {
   const lines: string[] = [
-    `<!-- copt:start -->`,
-    `## Repo navigation (synthesized by copt, ${date})`,
+    `## Repo navigation (synthesized by memex, ${date})`,
   ];
 
   if (entryPoints.length > 0) {
@@ -206,7 +205,6 @@ function formatCoptSection(
     }
   }
 
-  lines.push("<!-- copt:end -->");
   return lines.join("\n");
 }
 
@@ -223,12 +221,12 @@ export function analyzeEntryPoints(db: Db, repoPath: string): number[] {
   if (entryPoints.length === 0 && taskPatterns.length === 0) return [];
 
   const date = new Date().toISOString().slice(0, 10);
-  const content = formatCoptSection(entryPoints, taskPatterns, repoPath, date);
+  const content = formatMemexSection(entryPoints, taskPatterns, repoPath, date);
 
   const id = upsertSuggestion({
     repoPath,
     type: "CLAUDE_MD",
-    title: "Session navigation entry points (copt-synthesized)",
+    title: "Session navigation entry points (memex-synthesized)",
     content,
     reason: `Synthesized from ${patterns.length} sessions over the last ${SYNTH_WINDOW_DAYS} days. ${entryPoints.length} entry point(s), ${taskPatterns.length} task pattern(s) found.`,
   });

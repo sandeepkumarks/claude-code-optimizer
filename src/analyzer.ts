@@ -65,13 +65,11 @@ function analyzeContextHotspots(db: Db, repoPath: string): number[] {
   });
 
   const content = [
-    "<!-- copt:hotspots:start -->",
     "## Context hotspots worth summarizing",
     "",
     "Use this guidance to reduce repeated reads:",
     "",
     ...summaries,
-    "<!-- copt:hotspots:end -->"
   ].join("\n");
 
   const topSessions = Math.max(...rows.map(r => r.sessionCount));
@@ -92,8 +90,8 @@ export function analyzeClaudemdStaleness(repoPath: string): number[] {
 
   const raw = fs.readFileSync(claudePath, "utf8");
 
-  // Strip the copt-owned section before scanning for stale references
-  const humanContent = raw.replace(/<!--\s*copt(?::[^-]+)?:start\s*-->[\s\S]*?<!--\s*copt(?::[^-]+)?:end\s*-->/g, "");
+  // Strip the memex-owned section before scanning for stale references
+  const humanContent = raw.replace(/<!--\s*memex:start\s*-->[\s\S]*?<!--\s*memex:end\s*-->/g, "");
 
   const filePattern = /\b([\w./\-]+\.(ts|js|tsx|jsx|py|go|md|json|yaml|yml|sh))\b/g;
   const candidates = new Set<string>();
@@ -132,8 +130,7 @@ export function analyzeClaudemdStaleness(repoPath: string): number[] {
   if (stale.length === 0) return [];
 
   const content = [
-    "<!-- copt:stale:start -->",
-    "## CLAUDE.md audit — potentially stale references",
+    "## CLAUDE.md report — potentially stale references",
     "",
     "These file paths in CLAUDE.md haven't been accessed recently or no longer exist:",
     "",
@@ -141,13 +138,12 @@ export function analyzeClaudemdStaleness(repoPath: string): number[] {
     "",
     "Consider removing or updating these references to keep CLAUDE.md accurate.",
     "(This is a warning only — no content has been changed.)",
-    "<!-- copt:stale:end -->"
   ].join("\n");
 
   const id = upsertSuggestion({
     repoPath,
     type: "CLAUDE_MD",
-    title: "Review stale file references in CLAUDE.md",
+    title: "CLAUDE.md report — potentially stale references",
     content,
     reason: `${stale.length} file reference(s) in CLAUDE.md appear stale or missing.`
   });
@@ -197,13 +193,11 @@ function analyzeNoiseFolders(db: Db, repoPath: string): number[] {
   });
 
   const content = [
-    "<!-- copt:noise:start -->",
     "## Repo noise: paths to skip during exploration",
     "",
     "These paths are read often but almost never edited. Skip them during initial navigation unless the task explicitly targets them:",
     "",
     ...lines,
-    "<!-- copt:noise:end -->"
   ].join("\n");
 
   const id = upsertSuggestion({

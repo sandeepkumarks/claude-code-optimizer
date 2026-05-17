@@ -74,15 +74,15 @@ export function upsertSuggestion(suggestion: SuggestionRecord) {
   suggestion = { ...suggestion, repoPath: resolveRepoPath(suggestion.repoPath) };
   const db = getDb(suggestion.repoPath);
 
-  const existing = db.prepare<[string, string, string], { id: number; status: string }>(SQL_SELECT_EXISTING_SUGGESTION).get(suggestion.repoPath, suggestion.type, suggestion.title);
+  const existing = db.prepare<[string, string, string], { id: number; status: string; content: string }>(SQL_SELECT_EXISTING_SUGGESTION).get(suggestion.repoPath, suggestion.type, suggestion.title);
 
   if (existing) {
     if (existing.status === "REJECTED") return existing.id;
-    // For copt-owned sections: reset APPLIED → OPEN so fresh content is reviewable/re-applicable
-    const isCoptOwned = /<!--\s*copt(?::[a-z]+)*:start\s*-->/.test(suggestion.content);
-    if (existing.status === "APPLIED" && !isCoptOwned) return existing.id;
+    const isMemexManaged = suggestion.type === "CLAUDE_MD";
+    if (existing.status === "APPLIED" && !isMemexManaged) return existing.id;
+    const contentChanged = existing.content !== suggestion.content;
     db.prepare(SQL_UPDATE_SUGGESTION_CONTENT).run(suggestion.content, suggestion.reason, existing.id);
-    if (existing.status === "APPLIED" && isCoptOwned) {
+    if (existing.status === "APPLIED" && isMemexManaged && contentChanged) {
       db.prepare("UPDATE suggestions SET status = 'OPEN' WHERE id = ?").run(existing.id);
     }
     return existing.id;

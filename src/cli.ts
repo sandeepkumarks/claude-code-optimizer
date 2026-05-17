@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import fs from "node:fs";
+import path from "node:path";
 import { Command } from "commander";
 import chalk from "chalk";
 import { initRepo } from "./init.js";
@@ -18,7 +20,7 @@ function colorStatus(status: string | undefined): string {
 const program = new Command();
 
 program
-  .name("claude-opt")
+  .name("memex")
   .description("Local Claude Code optimizer")
   .version("0.1.0");
 
@@ -28,7 +30,7 @@ program.command("init")
     try {
       const result = initRepo(process.cwd());
       console.log(result.alreadyInstalled
-        ? chalk.yellow("Hooks already installed. Run claude-opt analyze to generate suggestions.")
+        ? chalk.yellow("Hooks already installed. Run memex analyze to generate suggestions.")
         : chalk.green(`Installed local Claude Code hooks: ${result.settingsPath}`)
       );
     } catch (err) {
@@ -39,13 +41,13 @@ program.command("init")
 
 program.command("analyze")
   .description("Analyze captured Claude Code events and generate suggestions")
-  .option("--auto", "Auto-apply safe optimizations (only updates copt-owned CLAUDE.md section)")
+  .option("--auto", "Auto-apply safe optimizations (only updates memex-owned CLAUDE.md section)")
   .action(({ auto }) => {
     try {
       const ids = analyze(process.cwd(), !!auto);
       console.log(chalk.green(`Generated/updated ${ids.length} suggestion(s).`));
       if (ids.length > 0 && !auto) {
-        console.log(chalk.yellow("Run: claude-opt suggestions"));
+        console.log(chalk.yellow("Run: memex suggestions"));
       }
     } catch (err) {
       console.error(chalk.red(`Error: ${(err as Error).message}`));
@@ -62,8 +64,8 @@ program.command("suggestions")
 
       if (suggestions.length === 0) {
         console.log(all
-          ? chalk.yellow("No suggestions recorded yet. Run Claude Code, then run claude-opt analyze.")
-          : chalk.yellow("No open suggestions. Run claude-opt analyze, or use --all to see history.")
+          ? chalk.yellow("No suggestions recorded yet. Run Claude Code, then run memex analyze.")
+          : chalk.yellow("No open suggestions. Run memex analyze, or use --all to see history.")
         );
         return;
       }
@@ -77,8 +79,8 @@ program.command("suggestions")
         console.log(chalk.dim("\nProposed content:\n"));
         console.log(s.content.split("\n").map(l => `  ${l}`).join("\n"));
         if (s.status === "OPEN") {
-          console.log(chalk.yellow(`\n  → Run: claude-opt apply ${s.id}`));
-          console.log(chalk.dim(`    or:   claude-opt reject ${s.id}`));
+          console.log(chalk.yellow(`\n  → Run: memex apply ${s.id}`));
+          console.log(chalk.dim(`    or:   memex reject ${s.id}`));
         }
       }
     } catch (err) {
@@ -107,6 +109,23 @@ program.command("reject")
     try {
       rejectSuggestion(Number(id), process.cwd());
       console.log(chalk.gray(`Rejected suggestion ${id}.`));
+    } catch (err) {
+      console.error(chalk.red(`Error: ${(err as Error).message}`));
+      process.exit(1);
+    }
+  });
+
+program.command("reset")
+  .description("Delete all tracked events and suggestions, starting fresh")
+  .action(() => {
+    try {
+      const dbPath = path.join(process.cwd(), ".claude", "optimizer", "optimizer.sqlite");
+      if (fs.existsSync(dbPath)) {
+        fs.rmSync(dbPath);
+        console.log(chalk.green("Reset complete. All events and suggestions cleared."));
+      } else {
+        console.log(chalk.yellow("Nothing to reset — no database found."));
+      }
     } catch (err) {
       console.error(chalk.red(`Error: ${(err as Error).message}`));
       process.exit(1);
